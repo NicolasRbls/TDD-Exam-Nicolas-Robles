@@ -12,10 +12,15 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+
+import static org.mockito.ArgumentMatchers.*;
+
 
 @WebMvcTest(CarController.class)
 class CarControllerTest {
@@ -61,4 +66,32 @@ class CarControllerTest {
 
         verify(service).returnCar(eq("X9"));
     }
+
+       @Test
+        void addCar_endpoint_success() throws Exception {
+            Mockito.when(service.addCar(any(Car.class))).thenReturn(true);
+
+            mockMvc.perform(post("/cars/add")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content("{\"registrationNumber\":\"C3\",\"model\":\"Opel\",\"available\":true}"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+
+            verify(service).addCar(any(Car.class));
+        }
+
+        @Test
+        void searchCarsByModel_endpoint() throws Exception {
+            List<Car> cars = List.of(new Car("A1","Golf",true));
+            Mockito.when(service.findCarsByModel("Golf")).thenReturn(cars);
+
+            mockMvc.perform(get("/cars/search")
+                    .param("model","Golf"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].registrationNumber").value("A1"))
+                .andExpect(jsonPath("$[0].model").value("Golf"));
+
+            verify(service).findCarsByModel("Golf");
+        }
+
 }

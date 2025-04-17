@@ -8,12 +8,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;               
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;               
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
+import java.util.Arrays;
+
 
 @ExtendWith(MockitoExtension.class)  // charge le MockitoExtension de JUnit5
 class CarRentalServiceTest {
@@ -75,5 +81,50 @@ class CarRentalServiceTest {
 
         assertTrue(spyCar.isAvailable());
         verify(repo).updateCar(spyCar);
+    }
+
+    @Test
+    void addCar_successful() {
+        Car newCar = new Car("C3","Opel",true);
+        when(repo.findByRegistrationNumber("C3")).thenReturn(Optional.empty());
+
+        boolean result = service.addCar(newCar);
+
+        assertTrue(result);
+        verify(repo).addCar(newCar);
+    }
+
+    @Test
+    void addCar_duplicateRegistration() {
+        Car existing = new Car("C3","Opel",true);
+        when(repo.findByRegistrationNumber("C3")).thenReturn(Optional.of(existing));
+
+        boolean result = service.addCar(existing);
+
+        assertFalse(result);
+        verify(repo, never()).addCar(any());
+    }
+
+    @Test
+    void findCarsByModel_returnsMatches() {
+        Car carA = new Car("A1","Golf",true);
+        Car carB = new Car("B2","Polo",true);
+        Car carC = new Car("C3","Golf",false);
+        when(repo.getAllCars()).thenReturn(Arrays.asList(carA,carB,carC));
+
+        List<Car> result = service.findCarsByModel("Golf");
+
+        assertEquals(2, result.size());
+        assertTrue(result.contains(carA));
+        assertTrue(result.contains(carC));
+    }
+
+    @Test
+    void findCarsByModel_noMatches() {
+        when(repo.getAllCars()).thenReturn(Collections.emptyList());
+
+        List<Car> result = service.findCarsByModel("Any");
+
+        assertTrue(result.isEmpty());
     }
 }
