@@ -19,8 +19,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
-import static org.mockito.ArgumentMatchers.*;
-
 
 @WebMvcTest(CarController.class)
 class CarControllerTest {
