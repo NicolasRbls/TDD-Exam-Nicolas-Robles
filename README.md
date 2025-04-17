@@ -28,6 +28,11 @@ Ce projet a été réalisé dans le cadre d’un **examen pratique** pour démon
 ### ▶️ Tous les tests JUnit (unitaires, mocks, spies, intégration)
 
 ```bash
+Get-Process java | Stop-Process -Force
+
+# (Optionnel) Nettoie tout le target, si vous préférez repartir à zéro
+Remove-Item -Recurse -Force .\target
+
 ./mvnw clean test
 ```
 
